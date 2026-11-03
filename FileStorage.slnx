@@ -1,0 +1,5 @@
+<Solution>
+  <Project Path="FileStorage.Application/FileStorage.Application.csproj" Id="44c70759-dd1e-43c8-bba8-752042603934" />
+  <Project Path="FileStorage.Domain/FileStorage.Domain.csproj" Id="7d4adb75-e244-48c9-937d-cb41a5b426b6" />
+  <Project Path="FileStorage/FileStorage.csproj" />
+</Solution>
