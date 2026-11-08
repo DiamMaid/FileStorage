@@ -14,18 +14,23 @@
 
 ## Запуск
 
+Для проверки достаточно запустить сервис в Docker и открыть Swagger.
+
 ### Docker (основной)
 ```bash
 docker compose up --build
 ```
+
+API: `http://localhost:8080`
+Swagger: `http://localhost:8080/swagger`
 
 ### Без Docker (требуется .NET 8 SDK)
 ```bash
 dotnet run --project FileStorage
 ```
 
-API: `http://localhost:8080` (Docker) или `https://localhost:5001` (без Docker)
-Swagger: добавить `/swagger` к адресу
+API: `http://localhost:5075`
+Swagger: `http://localhost:5075/swagger`
 
 ## Эндпоинты
 
