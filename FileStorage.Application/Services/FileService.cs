@@ -62,17 +62,18 @@ namespace FileStorage.Application.Services
             return files.Select(MapToDto);
         }
 
-        public async Task DeleteAsync(Guid fileId, Guid userId)
+        public async Task<bool> DeleteAsync(Guid fileId, Guid userId)
         {
             var file = await _fileRepository.GetByIdAsync(fileId);
 
             if (file == null || file.UserId != userId)
-                return;
+                return false;
 
             if (File.Exists(file.StoredPath))
                 File.Delete(file.StoredPath);
 
             await _fileRepository.DeleteAsync(fileId);
+            return true;
         }
 
         private static FileDto MapToDto(FileEntity entity)

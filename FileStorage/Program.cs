@@ -50,19 +50,21 @@ namespace FileStorage
                 });
             });
 
-            builder.Services.AddSingleton<IUserRepository, InMemoryUserRepository>();
-            builder.Services.AddSingleton<IFileRepository, InMemoryFileRepository>();
+            var storagePath = Path.Combine(Directory.GetCurrentDirectory(), "FileStorage");
+            Directory.CreateDirectory(storagePath);
+
+            builder.Services.AddSingleton<IUserRepository>(new FileBasedUserRepository(storagePath));
+            builder.Services.AddSingleton<IFileRepository>(new FileBasedFileRepository(storagePath));
             builder.Services.AddSingleton<IAuthService, AuthService>();
             builder.Services.AddSingleton<IFileService, FileService>(sp =>
-            {
-                var repo = sp.GetRequiredService<IFileRepository>();
-                var storagePath = Path.Combine(Directory.GetCurrentDirectory(), "FileStorage");
-                Directory.CreateDirectory(storagePath);
-                return new FileService(repo, storagePath);
-            });
+                new FileService(sp.GetRequiredService<IFileRepository>(), storagePath));
             builder.Services.AddSingleton<JwtService>();
 
-            var jwtSecret = builder.Configuration["Jwt:Secret"]!;
+            var jwtSecret = builder.Configuration["Jwt:Secret"];
+            if (string.IsNullOrWhiteSpace(jwtSecret))
+            {
+                throw new InvalidOperationException("JWT secret is not configured. Set Jwt:Secret (user-secrets) or Jwt__Secret (docker-compose).");
+            }
             builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
                 .AddJwtBearer(options =>
                 {
@@ -88,7 +90,10 @@ namespace FileStorage
                 app.UseSwaggerUI();
             }
 
-            app.UseHttpsRedirection();
+            if (!string.IsNullOrEmpty(builder.Configuration["ASPNETCORE_HTTPS_PORTS"]))
+            {
+                app.UseHttpsRedirection();
+            }
             app.UseAuthentication();
             app.UseAuthorization();
             app.MapControllers();

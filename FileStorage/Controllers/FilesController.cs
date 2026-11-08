@@ -18,6 +18,7 @@ namespace FileStorage.Controllers
         }
 
         [Authorize]
+        [RequestSizeLimit(50 * 1024 * 1024)]
         [HttpPost("upload")]
         public async Task<IActionResult> Upload(IFormFile file)
         {
@@ -58,7 +59,10 @@ namespace FileStorage.Controllers
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(Guid id)
         {
-            await _fileService.DeleteAsync(id, GetUserId());
+            var deleted = await _fileService.DeleteAsync(id, GetUserId());
+            if (!deleted)
+                return NotFound(new { error = "Файл не найден" });
+
             return NoContent();
         }
 

@@ -13,7 +13,7 @@ COPY ["FileStorage.Domain/FileStorage.Domain.csproj", "FileStorage.Domain/"]
 RUN dotnet restore "FileStorage/FileStorage.csproj"
 COPY . .
 WORKDIR "/src/FileStorage"
-RUN dotnet build "FileStorage.csproj" -c $BUILD_CONFIGURATION -o /app/build
+RUN dotnet build "FileStorage.csproj" -c $BUILD_CONFIGURATION -o /app/build /p:UseAppHost=false
 
 FROM build AS publish
 ARG BUILD_CONFIGURATION=Release
@@ -22,5 +22,7 @@ RUN dotnet publish "FileStorage.csproj" -c $BUILD_CONFIGURATION -o /app/publish 
 FROM base AS final
 WORKDIR /app
 COPY --from=publish /app/publish .
+USER root
 RUN mkdir -p /app/FileStorage && chown $APP_UID /app/FileStorage
+USER $APP_UID
 ENTRYPOINT ["dotnet", "FileStorage.dll"]
